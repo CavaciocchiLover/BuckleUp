@@ -2,8 +2,11 @@ import {Component, OnInit} from '@angular/core';
 import {MenuItem} from 'primeng/api';
 import {Menubar} from 'primeng/menubar';
 import {Ripple} from 'primeng/ripple';
-import {ButtonDirective, ButtonIcon, ButtonLabel} from 'primeng/button';
+import {Button, ButtonDirective, ButtonIcon, ButtonLabel} from 'primeng/button';
 import { CookieService } from 'ngx-cookie-service';
+import {NgIf} from '@angular/common';
+import {Dialog} from 'primeng/dialog';
+import {InputText} from 'primeng/inputtext';
 
 @Component({
   selector: 'app-navbar',
@@ -13,6 +16,10 @@ import { CookieService } from 'ngx-cookie-service';
     ButtonDirective,
     ButtonLabel,
     ButtonIcon,
+    NgIf,
+    Button,
+    Dialog,
+    InputText,
   ],
   providers: [CookieService],
   templateUrl: './navbar.component.html',
@@ -20,27 +27,28 @@ import { CookieService } from 'ngx-cookie-service';
 })
 export class NavbarComponent implements OnInit {
   items: MenuItem[] = [];
-  admin: string = "";
+  admin: boolean;
+  visible = false;
 
   constructor(private cookieService: CookieService) {
     //this.cookieService.set('token', 'Hello World');
-    this.admin = this.cookieService.get('admin');
+    this.admin = this.cookieService.get('admin') as unknown as boolean;
   }
 
   ngOnInit() {
     this.items = [
       {
         label: 'Home',
-        icon: 'fa fa-home'
+        icon: 'fa-solid fa-home'
       },
       {
         label: 'Carrello',
-        icon: 'pi pi-chart'
+        icon: 'fa-solid fa-cart'
       }
     ];
+  }
 
-    if (this.admin === 'admin') {
-      
-    }
+  showDialog() {
+    this.visible = true;
   }
 }

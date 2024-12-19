@@ -1,0 +1,13 @@
+/* You can add global styles to this file, and also import other style files */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Se li metto in navbar.css, è come se non li mettessi */
+.p-menubar-end {
+  margin-left: initial !important;
+}
+.p-menubar-mobile .p-menubar-button {
+  margin-left: auto;
+}
+

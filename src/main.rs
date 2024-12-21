@@ -1,11 +1,12 @@
 use actix_web::{get, web, App, HttpResponse, HttpServer};
-use mongodb::bson::{doc, to_bson, Document, RawDocument};
-use mongodb::{bson, Client, Collection};
-use mongodb::error::Error;
+use mongodb::bson::{doc, Document};
+use mongodb::{Client, Collection};
+use actix_cors::Cors;
+use http::header;
 
 #[get("/listaviaggi")]
 async fn listaviaggi(client: web::Data<Client>) -> HttpResponse {
-    let collection : Collection<bson::Document> = client.database("BuckleUp").collection("viaggi");
+    let collection : Collection<Document> = client.database("BuckleUp").collection("viaggi");
 
     match collection.find(doc!{"posti_liberi": {"$gt" : 0}}).await {
         Ok(mut cursor) => {
@@ -28,7 +29,14 @@ async fn main() -> std::io::Result<()> {
     let client = Client::with_uri_str(uri).await.expect("Unable to connect to MongoDB");
 
     HttpServer::new(move || {
+        let cors = Cors::default()
+            .allow_any_origin()
+            .allowed_methods(vec!["GET", "POST"])
+            .allow_any_header()
+            .max_age(3600);
+
         App::new()
+            .wrap(cors)
             .app_data(web::Data::new(client.clone()))
             .service(listaviaggi)
     })

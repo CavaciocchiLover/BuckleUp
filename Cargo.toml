@@ -1,0 +1,10 @@
+[package]
+name = "BackendBuckleUp"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+actix = "0.13.5"
+mongodb = "3.1.1"
+tokio = "1.42.0"
+actix-web = "4.9.0"

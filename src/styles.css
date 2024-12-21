@@ -4,10 +4,15 @@
 @tailwind utilities;
 
 /* Se li metto in navbar.css, è come se non li mettessi */
-.p-menubar-end {
-  margin-left: initial !important;
+@media only screen and (max-width: 959px) {
+  .p-menubar-end {
+    margin-left: initial !important;
+  }
+
+  .p-menubar-mobile .p-menubar-button {
+    margin-left: auto;
+  }
 }
-.p-menubar-mobile .p-menubar-button {
-  margin-left: auto;
-}
+
+
 

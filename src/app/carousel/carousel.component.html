@@ -1,36 +1,25 @@
-
 <p-carousel
-  [value]="products"
-  [numVisible]="3"
-  [numScroll]="3"
+  [value]="viaggi"
   [circular]="false"
+  [numScroll]="3"
+  [numVisible]="3"
   [responsiveOptions]="responsiveOptions">
-  <ng-template let-product #item>
+  <ng-template #item let-product>
     <div class="border border-surface rounded-border m-2 p-4">
       <div class="mb-4">
         <div class="relative mx-auto">
-          <img
-            src="https://primefaces.org/cdn/primeng/images/demo/product/{{ product.image }}"
-            [alt]="product.name"
-            class="w-full rounded-border" />
-          <p-tag
-            [value]="product.inventoryStatus"
-            class="absolute"
-            styleClass="dark:!bg-surface-900"
-            [ngStyle]="{ 'left.px': 5, 'top.px': 5 }" />
+          <img [ngSrc]="product.image" alt="trip image" class="w-full rounded-border">
         </div>
       </div>
       <div class="mb-4 font-medium">
-        {{ product.name }}
+        {{product.citta}}
       </div>
+      <!--Devo aggiungere un btn per "Scopri di più"-->
       <div class="flex justify-between items-center">
-        <div class="mt-0 font-semibold text-xl">
-          {{ '$' + product.price }}
-        </div>
         <span>
-                        <p-button icon="pi pi-heart" severity="secondary" [outlined]="true" />
-                        <p-button icon="pi pi-shopping-cart" styleClass="ml-2" />
-                    </span>
+          <p-button [outlined]="true" icon="pi pi-heart" severity="secondary"/>
+          <p-button icon="pi pi-shopping-cart" styleClass="ml-2"/>
+        </span>
       </div>
     </div>
   </ng-template>

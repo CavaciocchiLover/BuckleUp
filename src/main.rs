@@ -1,5 +1,4 @@
-use std::ops::Index;
-use std::sync::Mutex;
+use std::fs;
 use actix_web::{get, post, web, App, HttpResponse, HttpServer};
 use mongodb::bson::{doc, Document};
 use mongodb::{Client, Collection};
@@ -8,6 +7,10 @@ use base64ct::{Base64, Encoding};
 use sha2::{Sha256, Digest};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use std::fs::File;
+use std::io::{self, BufRead};
+use std::ops::Index;
+use std::path::Path;
 
 #[derive(Serialize, Deserialize)]
 struct Registrazione {
@@ -24,6 +27,7 @@ struct Login {
     password: String,
 }
 
+#[allow(non_snake_case)]
 #[derive(Serialize, Deserialize)]
 struct Viaggio {
     citta: String,
@@ -133,15 +137,68 @@ async fn nuovo(client: web::Data<Client>, body: web::Bytes) -> HttpResponse {
 }
 
 #[get("/paese")]
-async fn paese(lista: web::Data<i32>, path: web::Query<Map>) -> HttpResponse {
-    HttpResponse::Ok().body(lista.to_string() + " " + &path.to_string())
+async fn paese(lista: web::Data<Vec<String>>, query: web::Query<Value>) -> HttpResponse {
+    let nome = query.get("nome").unwrap_or(&Value::Null);
+
+    if nome == &Value::Null {
+        HttpResponse::BadRequest().body("Query non valido")
+    } else {
+        let mut sx = 0;
+        let mut dx = lista.len() - 1;
+
+        while sx <= dx {
+            let cn = (sx + dx) / 2;
+            let riga: Vec<String> = lista[cn].split(';').collect();
+            match riga[1].cmp(nome.as_str().unwrap()) {
+                std::cmp::Ordering::Equal => return HttpResponse::Ok().body(riga[0]),
+                std::cmp::Ordering::Less => sx = cn + 1,
+                std::cmp::Ordering::Greater => {
+                    if cn == 0 {
+                        return HttpResponse::BadRequest().body("paese non valido")
+                    }
+                    dx = cn - 1;
+                },
+            }
+        }
+
+        //println!("{:#?}", paese);
+        //let sigla = paesi.get(nome.as_str().unwrap()).unwrap_or(&Value::Null);
+        /*if sigla == &Value::Null {
+            HttpResponse::BadRequest().body("Il paese non esiste")
+        } else {
+            HttpResponse::Ok().body(paese)
+        }
+         */
+        HttpResponse::Ok().body("")
+    }
 }
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+
+    let mut esiste = fs::exists("./paesi.json").unwrap_or_else(|_| false);
+
+    while !esiste {
+        match fs::exists("./paesi.json") {
+            Ok(ris) => esiste = ris,
+            Err(_) => esiste = false
+        }
+        println!("Inserisci il file paesi.json e premi un tasto qualunque");
+        std::io::stdin()
+            .read_line(&mut String::new())
+            .expect("ERRORE: impossibile leggere l'input");
+    }
+
     let uri = "mongodb://127.0.0.1:27017/";
     let client = Client::with_uri_str(uri).await.expect("Unable to connect to MongoDB");
-    let file = 5;
+    let mut paesi = Vec::<String>::new();
+    if let Ok(righe) = read_lines("paesi.txt") {
+        for riga in righe.flatten() {
+            paesi.push(riga);
+        }
+    }
+
+    println!("Il server è operativo al seguente ip: 127.0.0.1:8080");
 
     HttpServer::new(move || {
         let cors = Cors::default()
@@ -153,7 +210,7 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .wrap(cors)
             .app_data(web::Data::new(client.clone()))
-            .app_data(web::Data::new(file))
+            .app_data(web::Data::new(paesi))
             .service(listaviaggi)
             .service(registrazione)
             .service(login)
@@ -163,4 +220,10 @@ async fn main() -> std::io::Result<()> {
         .bind(("127.0.0.1", 8080))?
         .run()
         .await
+}
+
+fn read_lines<P>(filename: P) -> io::Result<io::Lines<io::BufReader<File>>>
+where P: AsRef<Path>, {
+    let file = File::open(filename)?;
+    Ok(io::BufReader::new(file).lines())
 }

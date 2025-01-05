@@ -1,0 +1,31 @@
+<p-carousel
+  [value]="viaggi"
+  [circular]="false"
+  [numScroll]="2"
+  [numVisible]="2"
+  >
+  <ng-template #item let-product>
+    <div class="border border-surface rounded-border m-2 p-4">
+      <div class="mb-4">
+        <div class="relative mx-auto">
+          <img [ngSrc]="product.immagine" width="556" height="185" alt="trip image" class="w-full rounded-border">
+          <p-tag *ngIf="product.posti_liberi < 5" value="QUASI SOLD-OUT" severity="danger" class="absolute" styleClass="dark:!bg-surface-900" [ngStyle]="{ 'left.px': 5, 'top.px': 5 }" />
+        </div>
+      </div>
+      <div>
+        <div class="mb-4 font-medium">
+          <label>{{product.citta}}</label>
+        </div>
+        <div class="flex justify-between items-center">
+          <div class="mt-0 font-medium text-sm">
+            {{product.paese[1]}}
+            <span [class]="('fi fi-' + product.paese[0].toLowerCase())"></span>
+          </div>
+          <span>
+            <p-button label="Scopri di più" styleClass="ml-2"/>
+          </span>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+</p-carousel>

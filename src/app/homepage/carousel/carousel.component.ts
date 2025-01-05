@@ -2,39 +2,17 @@ import { Component, OnInit } from '@angular/core';
 import { Carousel } from 'primeng/carousel';
 import { ButtonModule } from 'primeng/button';
 import {MongoClient} from 'mongodb';
-import {NgOptimizedImage} from '@angular/common';
+import {NgIf, NgOptimizedImage, NgStyle} from '@angular/common';
+import {Tag} from 'primeng/tag';
 
 @Component({
   selector: 'app-carousel',
-  imports: [Carousel, ButtonModule, NgOptimizedImage],
+  imports: [Carousel, ButtonModule, NgOptimizedImage, Tag, NgStyle, NgIf],
   templateUrl: './carousel.component.html',
   styleUrl: './carousel.component.css'
 })
 export class CarouselComponent {
   viaggi: any[] = [];
-
-  responsiveOptions = [
-    {
-      breakpoint: '1400px',
-      numVisible: 2,
-      numScroll: 1
-    },
-    {
-      breakpoint: '1199px',
-      numVisible: 3,
-      numScroll: 1
-    },
-    {
-      breakpoint: '767px',
-      numVisible: 2,
-      numScroll: 1
-    },
-    {
-      breakpoint: '575px',
-      numVisible: 1,
-      numScroll: 1
-    }
-  ];
 
   ngOnInit()
   {
@@ -43,4 +21,6 @@ export class CarouselComponent {
         .then(data => this.viaggi = data))
       .catch((error) => console.error(error));
   }
+
+
 }

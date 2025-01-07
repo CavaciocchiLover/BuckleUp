@@ -1,14 +1,14 @@
+use env_logger::Env;
 use std::fs;
 use actix_web::{delete, get, post, web, App, HttpResponse, HttpServer};
 use mongodb::bson::{doc, Document};
 use mongodb::{Client, Collection};
 use actix_cors::Cors;
+use actix_web::middleware::Logger;
 use base64ct::{Base64, Encoding};
 use sha2::{Sha256, Digest};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use sha2::digest::generic_array::arr;
-
 #[derive(Serialize, Deserialize)]
 struct Registrazione {
     nome: String,
@@ -134,7 +134,6 @@ async fn nuovo(client: web::Data<Client>, body: web::Bytes) -> HttpResponse {
 #[get("/paese")]
 async fn paese(lista: web::Data<Value> ,query: web::Query<Value>) -> HttpResponse {
     let nome = query.get("nome").unwrap_or(&Value::Null);
-    println!("{:#?}", query);
     if nome == &Value::Null {
         HttpResponse::BadRequest().body("Query non valido")
     } else {
@@ -190,45 +189,6 @@ async fn modifica(client: web::Data<Client>, body: web::Bytes) -> HttpResponse {
     }
 }
 
-#[get("/arrivi")]
-async fn arrivi(client: web::Data<Client>) -> HttpResponse {
-    let collection : Collection<Value> = client.database("BuckleUp").collection("viaggi");
-
-    match collection.find(doc!{}).projection(doc!{"arrivo": 1, "_id": 0}).await {
-        Ok(mut cursor) => {
-            let mut result: Vec<String> = Vec::new();
-            while cursor.advance().await.unwrap_or(false) {
-                match cursor.deserialize_current() {
-                    Ok(document) => result.push(document["arrivo"].as_str().unwrap().to_string()),
-                    Err(e) => return HttpResponse::InternalServerError().body(e.to_string()),
-                }
-            }
-            HttpResponse::Ok().json(result)
-        },
-        Err(e) => HttpResponse::InternalServerError().body(e.to_string())
-    }
-}
-
-#[get("/partenze")]
-async fn partenze(client: web::Data<Client>) -> HttpResponse {
-    let collection : Collection<Value> = client.database("BuckleUp").collection("viaggi");
-
-    match collection.find(doc!{}).projection(doc!{"partenza": 1, "_id": 0}).await {
-        Ok(mut cursor) => {
-            let mut result: Vec<Value> = Vec::new();
-            while cursor.advance().await.unwrap_or(false) {
-                match cursor.deserialize_current() {
-                    Ok(document) => result.push(document),
-                    Err(e) => return HttpResponse::InternalServerError().body(e.to_string()),
-                }
-            }
-            HttpResponse::Ok().json(result)
-        },
-        Err(e) => HttpResponse::InternalServerError().body(e.to_string())
-    }
-}
-
-
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
 
@@ -249,8 +209,7 @@ async fn main() -> std::io::Result<()> {
     let client = Client::with_uri_str(uri).await.expect("Unable to connect to MongoDB");
     let paesi: Value = serde_json::from_str(&fs::read_to_string("./paesi.json")?)?;
 
-    println!("Il server è operativo al seguente ip: 127.0.0.1:8080");
-
+    env_logger::init_from_env(Env::default().default_filter_or("info"));
     HttpServer::new(move || {
         let cors = Cors::default()
             .allow_any_origin()
@@ -259,6 +218,7 @@ async fn main() -> std::io::Result<()> {
             .max_age(3600);
 
         App::new()
+            .wrap(Logger::default())
             .wrap(cors)
             .app_data(web::Data::new(client.clone()))
             .app_data(web::Data::new(paesi.clone()))
@@ -268,8 +228,6 @@ async fn main() -> std::io::Result<()> {
             .service(nuovo)
             .service(paese)
             .service(cancella)
-            .service(arrivi)
-            .service(partenze)
     })
         .bind(("127.0.0.1", 8080))?
         .run()

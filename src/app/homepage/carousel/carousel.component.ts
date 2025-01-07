@@ -4,6 +4,8 @@ import { ButtonModule } from 'primeng/button';
 import {MongoClient} from 'mongodb';
 import {NgIf, NgOptimizedImage, NgStyle} from '@angular/common';
 import {Tag} from 'primeng/tag';
+import {FetchService} from '../fetch.service';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-carousel',
@@ -18,9 +20,16 @@ export class CarouselComponent {
   {
     fetch("http://localhost:8080/listaviaggi")
       .then((response) => response.json()
-        .then(data => this.viaggi = data))
+        .then(data => {
+          this.viaggi = data;
+          this.fetchService.updateData(data);
+        }))
       .catch((error) => console.error(error));
   }
 
+  redirect(nome: string) {
+    this.router.navigate(['/pacchetto/' + nome]);
+  }
 
+  constructor(private fetchService: FetchService, private router: Router) {}
 }

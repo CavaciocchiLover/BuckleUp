@@ -44,7 +44,6 @@ export class GridComponent {
       icon: 'fa-solid fa-edit',
       command: () => {
         this.btn.label = 'Modifica';
-        this.btn.onClick.unsubscribe();
         this.btn.onClick.subscribe(this.modifica());
         this.modal_visible = true;
         this.header = "Modifica pacchetto";
@@ -217,7 +216,7 @@ export class GridComponent {
 
   async chiedoSigla() {
     this.nazione = this.nazione.trim().toLowerCase();
-    this.nazione = this.nazione[0].toLowerCase() + this.nazione.substring(1, this.nazione.length - 1);
+    this.nazione = this.nazione[0].toLowerCase() + this.nazione.substring(1, this.nazione.length);
 
     const richiesta_paese = await fetch('http://localhost:8080/paese?nome=' + this.nazione.trim());
     return [await richiesta_paese.text(), richiesta_paese.status.toString()];

@@ -6,6 +6,9 @@
   >
   <ng-template #item let-product>
     <div class="border border-surface rounded-border m-2 p-4">
+      <div class="mb-2">
+        <span class="text-lg font-bold">{{product.nomePacchetto}}</span>
+      </div>
       <div class="mb-4">
         <div class="relative mx-auto">
           <img [ngSrc]="product.immagine" width="556" height="185" alt="trip image" class="w-full rounded-border">
@@ -22,7 +25,7 @@
             <span [class]="('fi fi-' + product.paese[0].toLowerCase())"></span>
           </div>
           <span>
-            <p-button label="Scopri di più" styleClass="ml-2"/>
+            <p-button label="Scopri di più" styleClass="ml-2" (onClick)="redirect(product.nomePacchetto)"/>
           </span>
         </div>
       </div>

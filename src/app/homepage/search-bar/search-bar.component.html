@@ -1,9 +1,20 @@
 <div class="mt-3 flex flex-row justify-center gap-3">
   <p-floatlabel>
-      <p-autoComplete [suggestions]="arrivi_filtrati" id="arrivo" [(ngModel)]="arrivo" (completeMethod)="filtro($event)"/>
+      <p-autoComplete [suggestions]="arrivi_filtrati" id="arrivo" [(ngModel)]="arrivo" (completeMethod)="filtro($event, 1)"/>
     <label for="arrivo">
-      <i class="fa-solid fa-location-dot"></i>
+      <fa-icon [icon]="faLocation"></fa-icon>
       Dove vuoi andare?
     </label>
   </p-floatlabel>
+  <p-floatlabel>
+    <p-autoComplete [suggestions]="partenze_filtrati" id="partenza" [(ngModel)]="partenza" (completeMethod)="filtro($event, 0)"/>
+    <label for="partenza">
+      <fa-icon [icon]="faLocation"></fa-icon>
+      Da dove vuoi partire?
+    </label>
+  </p-floatlabel>
+  <button pButton pRipple severity="info">
+    <fa-icon [icon]="faSearch" pButtonIcon/>
+    <span pButtonLabel>Cerca</span>
+  </button>
 </div>

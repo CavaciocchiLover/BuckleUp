@@ -1,18 +1,24 @@
 import { Component } from '@angular/core';
-import {IftaLabel} from 'primeng/iftalabel';
-import {InputText} from 'primeng/inputtext';
 import {FormsModule} from '@angular/forms';
 import {AutoComplete, AutoCompleteCompleteEvent} from 'primeng/autocomplete';
 import {FloatLabel} from 'primeng/floatlabel';
+import {FontAwesomeModule} from '@fortawesome/angular-fontawesome';
+import {faLocationDot, faSearch} from '@fortawesome/free-solid-svg-icons';
+import {FetchService} from '../fetch.service';
+import {ButtonDirective, ButtonIcon, ButtonLabel} from 'primeng/button';
+import {Ripple} from 'primeng/ripple';
 
 @Component({
   selector: 'app-search-bar',
   imports: [
-    IftaLabel,
-    InputText,
     FormsModule,
     AutoComplete,
-    FloatLabel
+    FloatLabel,
+    FontAwesomeModule,
+    ButtonDirective,
+    Ripple,
+    ButtonIcon,
+    ButtonLabel,
   ],
   templateUrl: './search-bar.component.html',
   styleUrl: './search-bar.component.css'
@@ -23,23 +29,38 @@ export class SearchBarComponent {
   arrivo = "";
   partenza = "";
 
-  arrivi_filtrati: any[] = [];
+  faLocation = faLocationDot;
+  faSearch = faSearch;
 
-  ngOnInit(): void {
-    fetch('http://localhost:8080/arrivi')
-      .then(res => res.json()
-        .then(json => this.lista_arrivi = json)
-      ).catch(err => console.error(err));
-    fetch('http://localhost:8080/partenze')
-      .then(res => res.json()
-        .then(json => this.lista_partenza = json)
-      ).catch(err => console.error(err));
+  arrivi_filtrati: string[] = [];
+  partenze_filtrati: string[] = [];
+
+  constructor(private fetchService: FetchService) {
+    this.fetchService.currentData.subscribe(data => {
+      if (data) {
+        this.riempoVec(this.lista_partenza, data, "partenza");
+        this.riempoVec(this.lista_arrivi, data, "arrivo");
+      }
+    })
+  }
+  riempoVec(vec: string[], dati: any, chiave: string) {
+    for (let dato of dati) {
+      if(!vec.includes(dato[chiave])) {
+        vec.push(dato[chiave]);
+      }
+    }
   }
 
-  filtro(event: AutoCompleteCompleteEvent) {
-    this.arrivi_filtrati = this.lista_arrivi.filter(aereoporto =>
-      aereoporto.toLowerCase().includes(event.query.toLowerCase())
-    );
+  filtro(event: AutoCompleteCompleteEvent, tipo: number) {
+    if (tipo === 1) {
+      this.arrivi_filtrati = this.lista_arrivi.filter(aereoporto =>
+        aereoporto.toLowerCase().includes(event.query.toLowerCase())
+      );
+    } else {
+      this.partenze_filtrati = this.lista_partenza.filter(aereoporto =>
+        aereoporto.toLowerCase().includes(event.query.toLowerCase())
+      );
+    }
   }
 }
 

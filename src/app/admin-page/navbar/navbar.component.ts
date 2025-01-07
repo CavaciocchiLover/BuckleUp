@@ -6,7 +6,7 @@ import {Button} from 'primeng/button';
 import {FontAwesomeModule} from '@fortawesome/angular-fontawesome';
 import {faGear, faPlaneDeparture, faRightToBracket} from '@fortawesome/free-solid-svg-icons';
 import {FormsModule} from '@angular/forms';
-import {Router} from '@angular/router';
+import {Router, RouterLink} from '@angular/router';
 
 @Component({
   selector: 'app-navbar',
@@ -15,7 +15,8 @@ import {Router} from '@angular/router';
     Ripple,
     Button,
     FontAwesomeModule,
-    FormsModule
+    FormsModule,
+    RouterLink,
   ],
   providers: [],
   templateUrl: './navbar.component.html',

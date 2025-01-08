@@ -143,7 +143,6 @@ async fn paese(lista: web::Data<Value> ,query: web::Query<Value>) -> HttpRespons
         } else {
             HttpResponse::Ok().body(codice.to_string())
         }
-
     }
 }
 
@@ -189,6 +188,63 @@ async fn modifica(client: web::Data<Client>, body: web::Bytes) -> HttpResponse {
     }
 }
 
+#[post("/ricerca")]
+async fn ricerca(client: web::Data<Client>, body: web::Bytes) -> HttpResponse {
+    let json;
+    match serde_json::from_slice::<Value>(&body) {
+        Ok(dati) => json = dati,
+        Err(_) => return HttpResponse::BadRequest().body("Il json non è valido")
+    }
+
+    let collection : Collection<Viaggio> = client.database("BuckleUp").collection("viaggi");
+
+    let partenza = json.get("partenza").unwrap_or(&Value::Null);
+    let arrivo = json.get("arrivo").unwrap_or(&Value::Null);
+
+    if partenza == &Value::Null || arrivo == &Value::Null {
+        HttpResponse::BadRequest().body("Il json non è valido")
+    } else {
+        match collection.find(doc!{"partenza": partenza.as_str().unwrap(), "arrivo": arrivo.as_str().unwrap()}).await {
+            Ok(mut cursor) => {
+                let mut result: Vec<Viaggio> = Vec::new();
+                while cursor.advance().await.unwrap_or(false) {
+                    match cursor.deserialize_current() {
+                        Ok(document) => result.push(document),
+                        Err(e) => return HttpResponse::InternalServerError().body(e.to_string()),
+                    }
+                }
+                if result.len() == 0 {
+                    HttpResponse::NotFound().finish()
+                } else {
+                    HttpResponse::Ok().json(result)
+                }
+
+            },
+            Err(e) => HttpResponse::InternalServerError().body(e.to_string())
+        }
+    }
+}
+
+#[get("/pacchetto")]
+async fn pacchetto(client: web::Data<Client>, query: web::Query<Value>) -> HttpResponse {
+    let nome = query.get("nome").unwrap_or(&Value::Null);
+    if nome == &Value::Null {
+        HttpResponse::BadRequest().body("Query non valida")
+    } else {
+        let collection : Collection<Document> = client.database("BuckleUp").collection("viaggi");
+        match collection.find_one(doc!{"nomePacchetto": nome.as_str().unwrap()}).await {
+            Ok(doc) => {
+                if doc == None {
+                    HttpResponse::NotFound().finish()
+                } else {
+                    HttpResponse::Ok().json(doc)
+                }
+            },
+            Err(e) => HttpResponse::InternalServerError().body(e.to_string())
+        }
+    }
+}
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
 
@@ -228,6 +284,8 @@ async fn main() -> std::io::Result<()> {
             .service(nuovo)
             .service(paese)
             .service(cancella)
+            .service(ricerca)
+            .service(pacchetto)
     })
         .bind(("127.0.0.1", 8080))?
         .run()

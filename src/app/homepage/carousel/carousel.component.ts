@@ -6,6 +6,7 @@ import {NgIf, NgOptimizedImage, NgStyle} from '@angular/common';
 import {Tag} from 'primeng/tag';
 import {FetchService} from '../fetch.service';
 import {Router} from '@angular/router';
+import {query} from '@angular/animations';
 
 @Component({
   selector: 'app-carousel',
@@ -28,7 +29,7 @@ export class CarouselComponent {
   }
 
   redirect(nome: string) {
-    this.router.navigate(['/pacchetto/' + nome]);
+    this.router.navigate(['/pacchetto'], {queryParams: {q: nome}});
   }
 
   constructor(private fetchService: FetchService, private router: Router) {}

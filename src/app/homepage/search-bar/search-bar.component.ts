@@ -7,6 +7,7 @@ import {faLocationDot, faSearch} from '@fortawesome/free-solid-svg-icons';
 import {FetchService} from '../fetch.service';
 import {ButtonDirective, ButtonIcon, ButtonLabel} from 'primeng/button';
 import {Ripple} from 'primeng/ripple';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-search-bar',
@@ -35,7 +36,7 @@ export class SearchBarComponent {
   arrivi_filtrati: string[] = [];
   partenze_filtrati: string[] = [];
 
-  constructor(private fetchService: FetchService) {
+  constructor(private fetchService: FetchService, private router: Router) {
     this.fetchService.currentData.subscribe(data => {
       if (data) {
         this.riempoVec(this.lista_partenza, data, "partenza");
@@ -61,6 +62,13 @@ export class SearchBarComponent {
         aereoporto.toLowerCase().includes(event.query.toLowerCase())
       );
     }
+  }
+
+  redirect() {
+    this.router.navigate(
+      ['/ricerca'],
+      {queryParams: {partenza: this.partenza, arrivo: this.arrivo}}
+    )
   }
 }
 

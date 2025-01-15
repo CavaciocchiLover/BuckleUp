@@ -1,9 +1,12 @@
 import { Component } from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
+import {Image} from 'primeng/image';
 
 @Component({
   selector: 'app-dati-pacchetto',
-  imports: [],
+  imports: [
+    Image
+  ],
   templateUrl: './dati-pacchetto.component.html',
   styleUrl: './dati-pacchetto.component.css'
 })

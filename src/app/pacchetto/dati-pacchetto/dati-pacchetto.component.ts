@@ -1,11 +1,13 @@
 import { Component } from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import {Image} from 'primeng/image';
+import {Button} from 'primeng/button';
+import {Card} from 'primeng/card';
 
 @Component({
   selector: 'app-dati-pacchetto',
   imports: [
-    Image
+    Button,
+    Card
   ],
   templateUrl: './dati-pacchetto.component.html',
   styleUrl: './dati-pacchetto.component.css'
@@ -14,7 +16,9 @@ export class DatiPacchettoComponent {
   constructor(private query: ActivatedRoute, private route: Router) {}
 
   errore = false;
-  dati: any = {}
+  dati: any = {};
+  periodo = [];
+  modal_visible = false;
 
   ngOnInit() {
     let nome = "";
@@ -31,11 +35,16 @@ export class DatiPacchettoComponent {
       if (res.status === 200) {
         res.json().then(json => {
           this.dati = json;
+          this.periodo = json.periodo.split('-');
         })
       } else {
         this.errore = true;
       }
     })
       .catch(() => this.errore = true);
+  }
+
+  apriModal() {
+    this.modal_visible = true;
   }
 }

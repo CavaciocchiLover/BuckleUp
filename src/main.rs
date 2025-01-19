@@ -245,6 +245,46 @@ async fn pacchetto(client: web::Data<Client>, query: web::Query<Value>) -> HttpR
     }
 }
 
+#[post("/prenotazione")]
+async fn prenotazione(client: web::Data<Client>, body: web::Bytes) -> HttpResponse {
+    let json;
+    match serde_json::from_slice::<Value>(&body) {
+        Ok(dati) => json = dati,
+        Err(_) => return HttpResponse::BadRequest().body("Il json non è valido")
+    }
+
+    let collection : Collection<Viaggio> = client.database("BuckleUp").collection("viaggi");
+
+    let persone = json.get("persone").unwrap_or(&Value::Null);
+    let nome = json.get("nome").unwrap_or(&Value::Null);
+    let email = json.get("email").unwrap_or(&Value::Null);
+
+    if persone == &Value::Null || nome == &Value::Null || email == &Value::Null {
+        HttpResponse::BadRequest().body("Il json non è valido")
+    } else {
+        let n_persone = persone.as_i64().unwrap() as i32;
+        match collection.update_one(doc!{"nomePacchetto": nome.as_str().unwrap(),
+            "posti_liberi": {"$gt": n_persone}}, doc!{
+            "$push": {
+                "prenotazioni": {
+                    "email": email.as_str().unwrap(),
+                    "nPersone": n_persone,
+                }
+            },
+            "$inc": doc! {"posti_liberi": -n_persone}
+        }).await {
+            Ok(result) => {
+                if result.modified_count == 1 {
+                    HttpResponse::Ok().finish()
+                } else {
+                    HttpResponse::BadRequest().finish()
+                }
+            }
+            Err(e) => HttpResponse::InternalServerError().body(e.to_string())
+        }
+    }
+}
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
 
@@ -286,6 +326,7 @@ async fn main() -> std::io::Result<()> {
             .service(cancella)
             .service(ricerca)
             .service(pacchetto)
+            .service(prenotazione)
     })
         .bind(("127.0.0.1", 8080))?
         .run()

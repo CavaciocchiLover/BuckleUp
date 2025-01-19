@@ -12,6 +12,7 @@ import {FormControl, FormGroup, FormsModule, ReactiveFormsModule} from '@angular
 import {DatePicker} from 'primeng/datepicker';
 import {Toast} from 'primeng/toast';
 import {Router} from '@angular/router';
+import {AutoComplete, AutoCompleteCompleteEvent} from 'primeng/autocomplete';
 
 @Component({
   selector: 'app-grid',
@@ -28,7 +29,8 @@ import {Router} from '@angular/router';
     ReactiveFormsModule,
     DatePicker,
     FormsModule,
-    Toast
+    Toast,
+    AutoComplete
   ],
   templateUrl: './grid.component.html',
   styleUrl: './grid.component.css',
@@ -44,6 +46,7 @@ export class GridComponent {
       icon: 'fa-solid fa-edit',
       command: () => {
         this.labelBtn = 'Modifica';
+        this.btn.onClick.unsubscribe();
         this.btn.onClick.subscribe(this.modifica);
         this.modal_visible = true;
         this.header = "Modifica pacchetto";
@@ -96,12 +99,17 @@ export class GridComponent {
   header = "Nuovo Pacchetto";
   nViaggio = 0;
   labelBtn = "Aggiungi";
+  liste_partenze: String[] = [];
+  partenze_filtrate: String[] = [];
 
 
   ngOnInit() {
-    fetch("http://localhost:8080/listaviaggi")
+    fetch("http://130.61.29.167:8080/listaviaggi")
       .then((response) => response.json()
-        .then(data => this.viaggi = data))
+        .then(data => {
+          this.viaggi = data;
+          this.liste_partenze = data.map((viaggio: any) => {return viaggio["partenza"]});
+        }))
       .catch((error) => console.error(error));
 
     this.nuovoPacchetto = new FormGroup({
@@ -125,7 +133,7 @@ export class GridComponent {
         severity: 'danger',
         outlined: true,
       },
-      accept: () => {fetch(`http://localhost:8080/cancella`, {
+      accept: () => {fetch(`http://130.61.29.167:8080/cancella`, {
           method: 'DELETE',
           body: JSON.stringify({nome: this.nome})
         }).then(() => {
@@ -161,16 +169,16 @@ export class GridComponent {
   async aggiungi() {
     if (this.nome.trim().length > 2 && this.posto.trim().length > 2
       && this.descrizione.trim().length > 2 && this.costo > 0
-      && this.periodo.length == 2 && this.partenza.trim().length > 2
+      && this.periodo[0] !== null && this.periodo[1] !== null && this.partenza.trim().length > 2
       && this.arrivo.trim().length > 2 && this.immagine.trim().length > 2
       && this.postiLiberi > 0 && this.nazione.trim().length > 2)
     {
       try {
         const resp = await this.chiedoSigla();
         if (resp[1] === "200") {
-          await this.mandoDati('http://localhost:8080/nuovo', resp[0]);
+          await this.mandoDati('http://130.61.29.167:8080/nuovo', resp[0]);
         } else {
-          this.tipo_messaggio = "danger";
+          this.tipo_messaggio = "error";
           this.messaggio_visibile = true;
           this.messaggio = resp[0];
         }
@@ -180,7 +188,7 @@ export class GridComponent {
     } else {
       this.messaggio = "I dati non sono validi";
       this.messaggio_visibile = true;
-      this.tipo_messaggio = "danger";
+      this.tipo_messaggio = "error";
     }
   }
 
@@ -188,14 +196,14 @@ export class GridComponent {
     if (this.viaggi[this.nViaggio]["paese"][1] !== this.nazione) {
       let resp = await this.chiedoSigla();
       if (resp[1] === "200") {
-        await this.mandoDati('http://localhost:8080/modifica', resp[0]);
+        await this.mandoDati('http://130.61.29.167:8080/modifica', resp[0]);
       } else {
         this.messaggio = resp[0];
         this.messaggio_visibile = true;
         this.tipo_messaggio = "error";
       }
     } else {
-      await this.mandoDati('http://localhost:8080/modifica');
+      await this.mandoDati('http://130.61.29.167:8080/modifica');
     }
   }
 
@@ -203,17 +211,20 @@ export class GridComponent {
     let resp;
 
     if (sigla_paese === null) {
+
+      // @ts-ignore
+      const sigla = this.viaggi.paese[0];
       resp = await fetch(url, {
         method: 'POST',
         body: JSON.stringify({citta: this.posto.trim(), costo: this.costo, posti_liberi: this.postiLiberi, partenza: this.partenza,
-          immagine: this.immagine.trim(), paese: [sigla_paese, this.nazione], nomePacchetto: this.nome,
+          immagine: this.immagine.trim(), paese: [sigla, this.nazione], nomePacchetto: this.nome,
           periodo: this.periodo[0] + "-" + this.periodo[1], descrizione: this.descrizione, arrivo: this.arrivo}),
       });
     } else {
       resp = await fetch(url, {
         method: 'POST',
         body: JSON.stringify({citta: this.posto.trim(), costo: this.costo, posti_liberi: this.postiLiberi, partenza: this.partenza,
-          immagine: this.immagine.trim(), paese: this.viaggi[this.nViaggio]["paese"], nomePacchetto: this.nome,
+          immagine: this.immagine.trim(), paese: [sigla_paese, this.nazione], nomePacchetto: this.nome,
           periodo: this.periodo[0] + "-" + this.periodo[1], descrizione: this.descrizione, arrivo: this.arrivo}),
       });
     }
@@ -233,7 +244,15 @@ export class GridComponent {
     this.nazione = this.nazione.trim().toLowerCase();
     this.nazione = this.nazione[0].toUpperCase() + this.nazione.substring(1, this.nazione.length);
 
-    const richiesta_paese = await fetch('http://localhost:8080/paese?nome=' + this.nazione.trim());
+    const richiesta_paese = await fetch('http://130.61.29.167:8080/paese?nome=' + this.nazione.trim());
     return [await richiesta_paese.text(), richiesta_paese.status.toString()];
   }
+
+  filtro(event: AutoCompleteCompleteEvent) {
+    this.partenze_filtrate = this.liste_partenze.filter(aereoporto =>
+        aereoporto.toLowerCase().includes(event.query.toLowerCase())
+      );
+    }
+
+
 }

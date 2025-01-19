@@ -80,7 +80,7 @@ export class NavbarComponent implements OnInit {
 
   async loginFun() {
     try {
-      const response = await fetch("http://localhost:8080/login", {
+      const response = await fetch("http://130.61.29.167:8080/login", {
         method: 'POST',
         body: JSON.stringify({email: this.email, password: this.password}),
       });
@@ -97,7 +97,7 @@ export class NavbarComponent implements OnInit {
           this.login = true;
         }
 
-        //localStorage.setItem("email", this.email);
+        localStorage.setItem("email", this.email);
         this.messaggio_visibile = true;
         this.email = "";
         this.password = "";
@@ -118,7 +118,7 @@ export class NavbarComponent implements OnInit {
   async registrazione()
   {
     try {
-      const resp = await fetch("http://localhost:8080/registrazione", {
+      const resp = await fetch("http://130.61.29.167:8080/registrazione", {
         method: 'POST',
         body: JSON.stringify({nome: this.nome, cognome: this.cognome, data: this.data_nascita,
           email: this.email, password: this.password}),

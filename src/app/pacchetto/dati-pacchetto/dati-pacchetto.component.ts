@@ -73,7 +73,7 @@ export class DatiPacchettoComponent {
       }
     });
 
-    fetch("http://localhost:8080/pacchetto?nome=" + nome).then(res => {
+    fetch("http://130.61.29.167:8080/pacchetto?nome=" + nome).then(res => {
       if (res.status === 200) {
         res.json().then(json => {
           this.dati = json;
@@ -128,7 +128,7 @@ export class DatiPacchettoComponent {
         this.messaggio = "Non ci sono così tanti posti liberi";
         this.tipo_messaggio = "error";
       } else {
-        fetch("http://localhost:8080/prenotazione", {
+        fetch("http://130.61.29.167:8080/prenotazione", {
           method: 'POST',
           body: JSON.stringify({persone: this.nPersone, nome: this.dati["nomePacchetto"], email: email}),
         }).then(() => {

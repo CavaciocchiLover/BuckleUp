@@ -54,7 +54,7 @@
       </div>
       <div class="flex items-center gap-4 mb-4">
         <label for="partenza" class="font-semibold w-28">Aereoporto di partenza</label>
-        <input pInputText id="partenza" [(ngModel)]="partenza" class="flex-auto"/>
+        <p-autoComplete  [suggestions]="this.partenze_filtrate"  (completeMethod)="filtro($event)" id="partenza" [(ngModel)]="partenza" class="flex-auto"/>
       </div>
       <div class="flex items-center gap-4 mb-4">
         <label for="arrivo" class="font-semibold w-28">Aereoporto di arrivo</label>

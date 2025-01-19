@@ -121,7 +121,8 @@ export class DatiPacchettoComponent {
 
   prenoto() {
     let email = localStorage.getItem('email');
-    if (email !== null) {
+    let ruolo  = localStorage.getItem('ruolo');
+    if (email !== null && ruolo !== null) {
       if (this.nPersone > this.dati["posti_liberi"]) {
         this.messaggio_visibile = true;
         this.messaggio = "Non ci sono così tanti posti liberi";
@@ -129,7 +130,7 @@ export class DatiPacchettoComponent {
       } else {
         fetch("http://localhost:8080/prenotazione", {
           method: 'POST',
-          body: JSON.stringify({persone: this.nPersone, nome: this.dati["nomePacchetto"]}),
+          body: JSON.stringify({persone: this.nPersone, nome: this.dati["nomePacchetto"], email: email}),
         }).then(() => {
           this.tipo_messaggio = "success";
           this.messaggio_visibile = true;

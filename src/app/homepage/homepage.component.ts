@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import {CarouselComponent} from "./carousel/carousel.component";
-import {NavbarComponent} from "./navbar/navbar.component";
 import {SearchBarComponent} from './search-bar/search-bar.component';
 import {FooterComponent} from '../footer/footer.component';
+import {NavbarComponent} from '../navbar/navbar.component';
 
 @Component({
   selector: 'app-homepage',
@@ -10,7 +10,8 @@ import {FooterComponent} from '../footer/footer.component';
     CarouselComponent,
     NavbarComponent,
     SearchBarComponent,
-    FooterComponent
+    FooterComponent,
+    NavbarComponent
   ],
   templateUrl: './homepage.component.html',
   styleUrl: './homepage.component.css'

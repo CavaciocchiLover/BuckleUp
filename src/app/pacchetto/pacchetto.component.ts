@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import {NavbarComponent} from './navbar/navbar.component';
+import {NavbarComponent} from '../navbar/navbar.component';
 import {DatiPacchettoComponent} from './dati-pacchetto/dati-pacchetto.component';
 import {FooterComponent} from '../footer/footer.component';
 

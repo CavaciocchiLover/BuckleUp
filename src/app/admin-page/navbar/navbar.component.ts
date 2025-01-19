@@ -4,7 +4,7 @@ import {Menubar} from 'primeng/menubar';
 import {Ripple} from 'primeng/ripple';
 import {Button} from 'primeng/button';
 import {FontAwesomeModule} from '@fortawesome/angular-fontawesome';
-import {faGear, faPlaneDeparture, faRightToBracket} from '@fortawesome/free-solid-svg-icons';
+import {faGear, faPlaneDeparture, faRightFromBracket, faRightToBracket} from '@fortawesome/free-solid-svg-icons';
 import {FormsModule} from '@angular/forms';
 import {Router, RouterLink} from '@angular/router';
 
@@ -53,4 +53,5 @@ export class NavbarComponent implements OnInit {
 
   protected readonly faGear = faGear;
   protected readonly faRightToBracket = faRightToBracket;
+  protected readonly faRightFromBracket = faRightFromBracket;
 }

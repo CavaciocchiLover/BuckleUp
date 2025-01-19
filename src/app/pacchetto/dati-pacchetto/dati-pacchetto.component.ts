@@ -2,23 +2,65 @@ import { Component } from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Button} from 'primeng/button';
 import {Card} from 'primeng/card';
+import {faLocationDot, faFlag, faPlaneDeparture, faCalendarDay, faPlaneArrival, faUser, faSackDollar} from '@fortawesome/free-solid-svg-icons';
+import {FaIconComponent} from '@fortawesome/angular-fontawesome';
+import {NgIf} from '@angular/common';
+import {Tag} from 'primeng/tag';
+import {Dialog} from 'primeng/dialog';
+import {InputNumber} from 'primeng/inputnumber';
+import {FormsModule} from '@angular/forms';
+import {Message} from 'primeng/message';
+import {ConfirmDialog} from 'primeng/confirmdialog';
+import {ConfirmationService, MessageService} from 'primeng/api';
+import {Accordion, AccordionContent, AccordionHeader, AccordionPanel} from 'primeng/accordion';
+
 
 @Component({
   selector: 'app-dati-pacchetto',
   imports: [
     Button,
-    Card
+    Card,
+    FaIconComponent,
+    NgIf,
+    Tag,
+
+    Dialog,
+
+    InputNumber,
+    FormsModule,
+    Message,
+    ConfirmDialog,
+    Accordion,
+    AccordionPanel,
+    AccordionContent,
+    AccordionHeader,
   ],
+  providers: [ConfirmationService,MessageService],
   templateUrl: './dati-pacchetto.component.html',
   styleUrl: './dati-pacchetto.component.css'
 })
 export class DatiPacchettoComponent {
-  constructor(private query: ActivatedRoute, private route: Router) {}
+  constructor(private query: ActivatedRoute, private route: Router, private confirmationService: ConfirmationService, private messageService: MessageService) {}
 
   errore = false;
   dati: any = {};
   periodo = [];
   modal_visible = false;
+  nPersone = 0;
+  costo = 0;
+  tipo_messaggio = "";
+  messaggio_visibile = false;
+  messaggio = "";
+
+  faLocationDot = faLocationDot;
+  faFlag = faFlag;
+  faPlane = faPlaneDeparture;
+  faCalendar = faCalendarDay;
+  faPlaneArrival = faPlaneArrival;
+  faUser = faUser;
+  faSackDollar = faSackDollar;
+
+
 
   ngOnInit() {
     let nome = "";
@@ -46,5 +88,68 @@ export class DatiPacchettoComponent {
 
   apriModal() {
     this.modal_visible = true;
+    this.tipo_messaggio = "";
+    this.messaggio_visibile = false;
+    this.messaggio = "";
+    this.costo = 0;
+    this.nPersone = 0;
+  }
+
+  chiedoConferma(event: Event) {
+    if (this.nPersone > 0) {
+      this.confirmationService.confirm({
+        target: event.target as EventTarget,
+        message: 'Sei sicuræ di prenotare questo questo viaggio?',
+        header: 'Prenotazione',
+        icon: 'fa-regular fa-circle-question',
+        rejectButtonProps: {
+          label: 'Annulla',
+          severity: 'secondary',
+          outlined: true,
+        },
+        acceptButtonProps: {
+          label: 'Si',
+          severity: 'success',
+          outlined: true,
+        },
+        accept: () => {
+          this.prenoto()
+        },
+      })
+    }
+  }
+
+  prenoto() {
+    let email = localStorage.getItem('email');
+    if (email !== null) {
+      if (this.nPersone > this.dati["posti_liberi"]) {
+        this.messaggio_visibile = true;
+        this.messaggio = "Non ci sono così tanti posti liberi";
+        this.tipo_messaggio = "error";
+      } else {
+        fetch("http://localhost:8080/prenotazione", {
+          method: 'POST',
+          body: JSON.stringify({persone: this.nPersone, nome: this.dati["nomePacchetto"]}),
+        }).then(() => {
+          this.tipo_messaggio = "success";
+          this.messaggio_visibile = true;
+          this.messaggio = "Registrazione avvenuta con successo";
+        }).catch((e) => {
+          this.tipo_messaggio = "error";
+          this.messaggio_visibile = true;
+          this.messaggio = String(e);
+        })
+      }
+    } else {
+      this.tipo_messaggio = "error";
+      this.messaggio_visibile = true;
+      this.messaggio = "Rieffettua il login";
+    }
+
+  }
+
+  calc() {
+    if (this.nPersone <= 10)
+      this.costo = this.dati["costo"] * this.nPersone;
   }
 }

@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {MenuItem} from 'primeng/api';
 import {Menubar} from 'primeng/menubar';
 import {Ripple} from 'primeng/ripple';
@@ -7,7 +7,7 @@ import {NgIf} from '@angular/common';
 import {Dialog} from 'primeng/dialog';
 import {InputText} from 'primeng/inputtext';
 import {FontAwesomeModule} from '@fortawesome/angular-fontawesome';
-import {faGear, faPlaneDeparture, faRightToBracket} from '@fortawesome/free-solid-svg-icons';
+import {faGear, faPlaneDeparture, faRightFromBracket, faRightToBracket} from '@fortawesome/free-solid-svg-icons';
 import {FormsModule} from '@angular/forms';
 import {Message} from 'primeng/message';
 import {Router, RouterLink} from '@angular/router';
@@ -34,6 +34,7 @@ export class NavbarComponent implements OnInit {
   items: MenuItem[] = [];
   admin = false;
   visible = false;
+  login = false;
 
   model_login = true;
   email = "";
@@ -53,10 +54,13 @@ export class NavbarComponent implements OnInit {
   ngOnInit() {
 
     const ruolo = localStorage.getItem("ruolo");
-    console.log(ruolo);
 
-    if (ruolo !== null && ruolo === 'admin') {
-      this.admin = true;
+    if (ruolo !== null && localStorage.getItem('email') !== null) {
+      if (ruolo === 'admin') {
+        this.admin = true;
+      } else {
+        this.login = true;
+      }
     }
 
     this.items = [
@@ -86,8 +90,6 @@ export class NavbarComponent implements OnInit {
         body: JSON.stringify({email: this.email, password: this.password}),
       });
 
-      this.messaggio_visibile = true;
-
       if (response.ok) {
         this.tipo_messaggio = "success";
         let json = await response.json();
@@ -95,8 +97,15 @@ export class NavbarComponent implements OnInit {
         if (json["ruolo"] === "admin") {
           localStorage.setItem("ruolo", 'admin');
           this.admin = true;
+        } else {
+          localStorage.setItem("ruolo", "utente");
+          this.login = true;
         }
 
+        localStorage.setItem("email", this.email);
+        this.messaggio_visibile = true;
+        this.email = "";
+        this.password = "";
         this.messaggio = "Ti sei loggatə con successo."
 
       } else {
@@ -120,14 +129,26 @@ export class NavbarComponent implements OnInit {
           email: this.email, password: this.password}),
       })
 
+
+
       this.messaggio_visibile = true;
-      this.messaggio = String(resp.body);
 
       if (resp.ok) {
         this.tipo_messaggio = "success";
+        this.messaggio = "Ti sei registratə con successo.";
+        localStorage.setItem("ruolo", 'utente');
+        localStorage.setItem("email", this.email);
+        this.login = true;
       } else {
         this.tipo_messaggio = "error";
+        this.messaggio = await resp.text();
       }
+
+      this.nome = "";
+      this.cognome = "";
+      this.data_nascita = "";
+      this.email = "";
+      this.password = "";
     } catch (e) {
       this.messaggio_visibile = true;
       this.messaggio = String(e);
@@ -135,6 +156,13 @@ export class NavbarComponent implements OnInit {
     }
   }
 
+  logout() {
+    this.login = false;
+    localStorage.removeItem("ruolo");
+    localStorage.removeItem("email");
+  }
+
   protected readonly faGear = faGear;
   protected readonly faRightToBracket = faRightToBracket;
+  protected readonly faRightFromBracket = faRightFromBracket;
 }

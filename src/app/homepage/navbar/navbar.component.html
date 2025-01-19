@@ -22,24 +22,24 @@
           </p-button>
           <p-dialog pRipple header="Login" [modal]="true" [(visible)]="visible" [style]="{ width: '25rem' }">
             <div *ngIf="!model_login" class="flex items-center gap-4 mb-4">
-              <label for="nome" class="font-semibold w-24">Nome</label>
-              <input pInputText id="nome" [(ngModel)]="nome" class="flex-auto" autocomplete="off" />
+              <label for="nome" class="font-semibold w-28">Nome</label>
+              <input pInputText id="nome" [(ngModel)]="nome" class="w-full" autocomplete="off" />
             </div>
             <div *ngIf="!model_login" class="flex items-center gap-4 mb-4">
-              <label for="Cognome" class="font-semibold w-24">Cognome</label>
-              <input pInputText id="Cognome" [(ngModel)]="cognome" class="flex-auto" autocomplete="off" />
+              <label for="Cognome" class="font-semibold w-28">Cognome</label>
+              <input pInputText id="Cognome" [(ngModel)]="cognome" class="w-full" autocomplete="off" />
             </div>
             <div *ngIf="!model_login" class="flex items-center gap-4 mb-4">
-              <label for="DataNascita" class="font-semibold w-24">Data di Nascita</label>
-              <input pInputText type="date" id="DataNascita" class="flex-auto" autocomplete="off" [(ngModel)]="data_nascita" />
+              <label for="DataNascita" class="font-semibold w-28">Data di Nascita</label>
+              <p-datePicker id="DataNascita" appendTo="body" [(ngModel)]="data_nascita" class="w-full flex-auto" dateFormat="dd/mm/yy" showIcon iconDisplay="input"/>
             </div>
             <div class="flex items-center gap-4 mb-4">
-              <label for="email" class="font-semibold w-24">Email</label>
-              <input pInputText id="email" [(ngModel)]="email" class="flex-auto" autocomplete="off" />
+              <label for="email" class="font-semibold w-28">Email</label>
+              <input pInputText id="email" [(ngModel)]="email" class="w-full flex-auto" autocomplete="off" />
             </div>
             <div class="flex items-center gap-4 mb-8">
-              <label for="password" class="font-semibold w-24">Password</label>
-              <input pInputText type="password" [(ngModel)]="password" id="password" class="flex-auto" autocomplete="off" />
+              <label for="password" class="font-semibold w-28">Password</label>
+              <input pInputText type="password" [(ngModel)]="password" id="password" class="w-full flex-auto" autocomplete="off" />
             </div>
             <div *ngIf="messaggio_visibile" class="flex justify-center items-center mb-8">
               <p-message [severity]="tipo_messaggio">{{messaggio}}</p-message>

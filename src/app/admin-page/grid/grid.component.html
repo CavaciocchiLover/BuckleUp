@@ -37,37 +37,37 @@
         <input pInputText id="nazione" class="flex-auto" [(ngModel)]="nazione" autocomplete="off"/>
       </div>
       <div class="flex items-center gap-4 mb-4">
-        <label for="descrizione" class="font-semibold w-32">Descrizione</label>
+        <label for="descrizione" class="font-semibold w-28">Descrizione</label>
         <input pInputText id="descrizione" class="flex-auto" [(ngModel)]="descrizione" autocomplete="off"/>
       </div>
       <div class="flex items-center gap-4 mb-4">
-        <label for="costo" class="font-semibold w-32">Costo a persona</label>
+        <label for="costo" class="font-semibold w-28">Costo a persona</label>
         <input pInputText type="number" min="0" id="costo" [(ngModel)]="costo" class="flex-1" autocomplete="off"/>
       </div>
       <div class="flex items-center gap-4 mb-4">
-        <label for="postiLiberi" class="font-semibold w-32">Posti liberi</label>
+        <label for="postiLiberi" class="font-semibold w-28">Posti liberi</label>
         <input pInputText type="number" min="0" id="postiLiberi" [(ngModel)]="postiLiberi" class="flex-auto" autocomplete="off"/>
       </div>
       <div class="flex items-center gap-4 mb-4">
-        <label for="Periodo" class="font-semibold w-32">Periodo</label>
+        <label for="Periodo" class="font-semibold w-28">Periodo</label>
         <p-datePicker appendTo="body" [(ngModel)]="periodo" id="Periodo" class="flex-auto" dateFormat="dd/mm/yy" selectionMode="range" showIcon iconDisplay="input"/>
       </div>
       <div class="flex items-center gap-4 mb-4">
-        <label for="partenza" class="font-semibold w-32">Aereoporto di partenza</label>
+        <label for="partenza" class="font-semibold w-28">Aereoporto di partenza</label>
         <input pInputText id="partenza" [(ngModel)]="partenza" class="flex-auto"/>
       </div>
       <div class="flex items-center gap-4 mb-4">
-        <label for="arrivo" class="font-semibold w-32">Aereoporto di arrivo</label>
+        <label for="arrivo" class="font-semibold w-28">Aereoporto di arrivo</label>
         <input pInputText id="arrivo" [(ngModel)]="arrivo" class="flex-auto"/>
       </div>
       <div class="flex items-center gap-4 mb-4">
-        <label for="immagine" class="font-semibold w-32">Immagine</label>
+        <label for="immagine" class="font-semibold w-28">Immagine</label>
         <input pInputText id="immagine" [(ngModel)]="immagine" class="flex-auto"/>
       </div>
-      <p-message [severity]="tipo_messaggio" closable [hidden]="!messaggio_visibile" [life]="3000">{{messaggio}}</p-message>
+      <p-message [severity]="tipo_messaggio" closable [hidden]="!messaggio_visibile">{{messaggio}}</p-message>
       <div class="flex justify-end gap-2 mt-3">
         <p-button label="Annulla" outlined severity="secondary" (onClick)="modal_visible = false"/>
-        <p-button #btn label="Aggiungi" outlined (onClick)="aggiungi()"/>
+        <p-button #btn [label]="labelBtn" outlined (onClick)="aggiungi()"/>
       </div>
   </p-dialog>
 <p-toast/>

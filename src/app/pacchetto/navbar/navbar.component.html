@@ -16,10 +16,14 @@
             <fa-icon [icon]="faGear"></fa-icon>
           </p-button>
           </a>
-          <p-button *ngIf="!admin" (click)="showDialog()" [rounded]="true" severity="info">
-            <span class="ms-1">Login</span>
+          <p-button *ngIf="!admin && !login" (click)="showDialog()" [rounded]="true" severity="info">
+            <span class="ms-1" #btnLogin >Login</span>
             <fa-icon [icon]="faRightToBracket"></fa-icon>
           </p-button>
+          <p-button *ngIf="login" [rounded]="true" (onClick)="logout()" severity="help">
+          <span class="ms-1">Logout</span>
+          <fa-icon [icon]="faRightFromBracket"></fa-icon>
+        </p-button>
           <p-dialog pRipple header="Login" [modal]="true" [(visible)]="visible" [style]="{ width: '25rem' }">
             <div *ngIf="!model_login" class="flex items-center gap-4 mb-4">
               <label for="nome" class="font-semibold w-24">Nome</label>

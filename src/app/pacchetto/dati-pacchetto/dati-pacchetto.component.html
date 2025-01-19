@@ -1,45 +1,45 @@
-<div class="mt-4 flex justify-center flex-col">
+<div class="mt-4 flex justify-center flex-col mb-3">
   <span class="text-2xl font-bold flex justify-center">{{dati["nomePacchetto"]}}</span>
-  <div class="grid grid-cols-2 gap-10 mt-5">
-    <div class="flex justify-center">
+  <div class="mt-5 md:grid grid-cols-2 gap-10">
+    <div class="flex justify-center relative">
       <img [src]="dati['immagine']" class="mt-2 max-w-4xl" width="80%"/>
+      <p-tag *ngIf="dati.posti_liberi <= 5" value="QUASI SOLD-OUT" severity="danger" class="absolute top-[0.8rem] left-[11%] z-10" styleClass="dark:!bg-surface-900" />
     </div>
-    <div class="grid grid-cols-2 gap-5">
-      <div class="flex flex-row gap-1 text-lg">
-        <i class="fa-solid fa-location-dot" style="color: #63E6BE;"></i>
+    <div class="grid grid-cols-2 gap-5 sm:mt-5">
+      <div class="flex flex-row gap-1 text-lg place-self-center text-nowrap">
+        <fa-icon [icon]="faLocationDot" style="color: #63E6BE;"></fa-icon>
         <span>{{ 'Locatità: ' + dati['citta'] }}</span>
       </div>
-        <div class="flex flex-row items-start gap-1 text-lg">
-          <i class="fa-solid fa-flag" style="color: #62cbe5"></i>
-          <span>{{dati.paese[1]}}</span>
-          <span [class]="('fi fi-' + dati.paese[0].toLowerCase())"></span>
-        </div>
-      <div class="flex flex-row gap-1 text-lg">
-        <i class="fa-solid fa-calendar-days" style="color: #ea9d34;"></i>
+      <div *ngIf="dati['paese'] !== undefined" class="flex flex-row gap-1 text-lg place-self-center text-nowrap">
+        <fa-icon [icon]="faFlag" style="color: #62cbe5"></fa-icon>
+        <span>{{dati.paese[1]}}</span>
+        <span [class]="('self-baseline mt-2 fi fi-' + dati.paese[0].toLowerCase())"></span>
+      </div>
+      <div class="flex flex-row gap-1 text-lg place-self-center text-nowrap">
+        <fa-icon [icon]="faCalendar" style="color: #ea9d34;"></fa-icon>
         <span>{{ 'Inizio: ' + periodo[0] }}</span>
       </div>
-      <div class="flex flex-row gap-1 text-lg">
-        <i class="fa-solid fa-calendar-days" style="color: #c4a7e7;"></i>
+      <div class="flex flex-row gap-1 text-lg place-self-center text-nowrap">
+        <fa-icon [icon]="faCalendar" style="color: #c4a7e7;"></fa-icon>
         <span>{{ 'Fine: ' + periodo[1] }}</span>
       </div>
-      <div class="flex flex-row gap-1 text-lg">
-        <i class="fa-solid fa-plane-departure" style="color: #ffbe0b;"></i>
+      <div class="flex flex-row gap-1 text-lg place-self-center text-nowrap">
+        <fa-icon [icon]="faPlane" style="color: #ffbe0b;"></fa-icon>
         <span>{{ 'Partenza: ' + dati['partenza'] }}</span>
       </div>
-      <div class="flex flex-row gap-1 text-lg">
-        <i class="fa-solid fa-plane-arrival" style="color: #d62828;"></i>
+      <div class="flex flex-row gap-1 text-lg place-self-center text-nowrap">
+        <fa-icon [icon]="faPlaneArrival" style="color: #d62828"></fa-icon>
         <span>{{ 'Arrivo: ' + dati['arrivo'] }}</span>
       </div>
-      <div class="flex flex-row gap-1 text-lg">
-        <i class="fa-solid fa-users" style="color: #22577a;"></i>
+      <div class="flex flex-row gap-1 text-lg place-self-center text-nowrap">
+        <fa-icon [icon]="faUser" style="color: #22577a;"></fa-icon>
         <span>{{ 'Posti liberi: ' + dati['posti_liberi'] }}</span>
       </div>
-      <div class="flex flex-row gap-1 text-lg">
-        <i class="fa-solid fa-sack-dollar" style="color: #80ed99;"></i>
+      <div class="flex flex-row gap-1 text-lg place-self-center text-nowrap">
+        <fa-icon [icon]="faSackDollar" style="color: #80ed99;"></fa-icon>
         <span>{{ 'Costo: ' + dati['costo'] + '€'}}</span>
       </div>
-      <div class="relative">
-      <p-card class="flex items-center col-span-2" header="Prenota subito!" [style]="{ position: 'absolute', left: '0px' }">
+      <p-card class="flex items-center place-self-center col-span-2" header="Prenota subito!">
         <div class="flex flex-row gap-1">
           <span>Sono rimasti</span>
           <span class="font-bold" style="color: #d62828">pochissimi</span>
@@ -47,8 +47,66 @@
         </div>
         <p-button class="mt-2 flex justify-center" label="Clicca qui" severity="success" outlined rounded (onClick)="apriModal();" />
       </p-card>
-      </div>
     </div>
   </div>
-
+  <p-dialog header="Prenotazione" modal [(visible)]="modal_visible" [style]="{witdth: '25rem'}">
+    <span class="p-text-secondary block mb-8">Quante persone parteciperanno al viaggio?</span>
+    <div class="flex items-center gap-4 mb-4">
+      <label for="nPersone" class="font-semibold w-24">Numero di persone</label>
+      <p-input-number id="nPersone" [(ngModel)]="nPersone" class="flex-auto" [min]="0" [max]="10" (onInput)="calc()"/>
+    </div>
+    <div class="flex items-center gap-4 mb-4">
+      <label for="costo" class="font-semibold w-24">Costo totale</label>
+      <p-input-number [(ngModel)]="costo"  id="costo" class="flex-auto" mode="currency" readonly currency="EUR" locale="it-IT" />
+    </div>
+    <p-message class="mb-8" [severity]="tipo_messaggio" closable [hidden]="!messaggio_visibile">{{messaggio}}</p-message>
+    <div class="flex justify-end gap-2 mt-5">
+      <p-button label="Annulla" severity="secondary" rounded outlined (onClick)="modal_visible = false;"/>
+      <p-button label="Prenota" severity="primary" rounded outlined (onClick)="chiedoConferma($event)"/>
+    </div>
+  </p-dialog>
 </div>
+<div class="mt-5 flex mx-5 mr-5">
+  <p-accordion class="w-screen">
+    <p-accordion-panel value="0">
+      <p-accordion-header>Documenti necessari</p-accordion-header>
+      <p-accordion-content>
+        <p class="m-0">
+          È necessario il passaporto in corso di validità. Al momento dell'ingresso nel Paese bisogna essere in possesso anche del biglietto aereo di ritorno.
+        </p>
+      </p-accordion-content>
+    </p-accordion-panel>
+
+    <p-accordion-panel value="1">
+      <p-accordion-header>Cosa comprende la quota</p-accordion-header>
+      <p-accordion-content>
+        <ul class="m-0">
+          <li>
+            Volo A/R dall'Italia con bagaglio a mano
+          </li>
+          <li>
+            Pernottamenti in albergo
+          </li>
+          <li>
+            Pass per i trasporti locali
+          </li>
+          <li>
+            Polizza annullamento e medica
+          </li>
+        </ul>
+      </p-accordion-content>
+    </p-accordion-panel>
+    <p-accordion-panel value="2">
+      <p-accordion-header>Cosa NON comprende la quota</p-accordion-header>
+      <p-accordion-content>
+        <ul>
+          <li>
+            Pasti non menzionati e spese di carattere personale
+          </li>
+          <li>Tutto quanto non menzionato nella paragrafo di sopra</li>
+        </ul>
+      </p-accordion-content>
+    </p-accordion-panel>
+  </p-accordion>
+</div>
+<p-confirm-dialog/>

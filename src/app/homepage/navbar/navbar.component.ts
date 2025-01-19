@@ -11,21 +11,24 @@ import {faGear, faPlaneDeparture, faRightToBracket} from '@fortawesome/free-soli
 import {FormsModule} from '@angular/forms';
 import {Message} from 'primeng/message';
 import {Router, RouterLink} from '@angular/router';
+import {DatePicker} from "primeng/datepicker";
+import {data} from 'autoprefixer';
 
 @Component({
   selector: 'app-navbar',
-  imports: [
-    Menubar,
-    Ripple,
-    NgIf,
-    Button,
-    Dialog,
-    InputText,
-    FontAwesomeModule,
-    FormsModule,
-    Message,
-    RouterLink
-  ],
+    imports: [
+        Menubar,
+        Ripple,
+        NgIf,
+        Button,
+        Dialog,
+        InputText,
+        FontAwesomeModule,
+        FormsModule,
+        Message,
+        RouterLink,
+        DatePicker
+    ],
   providers: [],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.css'
@@ -137,4 +140,5 @@ export class NavbarComponent implements OnInit {
 
   protected readonly faGear = faGear;
   protected readonly faRightToBracket = faRightToBracket;
+  protected readonly data = data;
 }

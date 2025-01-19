@@ -11,8 +11,8 @@
       </div>
       <div class="mb-4">
         <div class="relative mx-auto">
-          <img [ngSrc]="product.immagine" width="556" height="185" alt="trip image" class="w-full rounded-border">
-          <p-tag *ngIf="product.posti_liberi < 5" value="QUASI SOLD-OUT" severity="danger" class="absolute" styleClass="dark:!bg-surface-900" [ngStyle]="{ 'left.px': 5, 'top.px': 5 }" />
+          <img [ngSrc]="product.immagine" width="556" height="185" alt="trip image" class="w-full rounded-border max-w-3xl">
+          <p-tag *ngIf="product.posti_liberi <= 5" value="QUASI SOLD-OUT" severity="danger" class="absolute" styleClass="dark:!bg-surface-900" [ngStyle]="{ 'left.px': 5, 'top.px': 5 }" />
         </div>
       </div>
       <div>

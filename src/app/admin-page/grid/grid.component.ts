@@ -43,24 +43,26 @@ export class GridComponent {
       label: 'Modifica',
       icon: 'fa-solid fa-edit',
       command: () => {
-        this.btn.label = 'Modifica';
-        this.btn.onClick.subscribe(this.modifica());
+        this.labelBtn = 'Modifica';
+        this.btn.onClick.subscribe(this.modifica);
         this.modal_visible = true;
         this.header = "Modifica pacchetto";
         this.nViaggio = 0;
 
         for (const viaggio of this.viaggi) {
           if (viaggio["nomePacchetto"] === this.nome) {
-            const date = viaggio["periodo"].split("-");
+            const date = viaggio["periodo"].split("-").map((data: string) => data.split('/'));
             this.immagine = viaggio["immagine"];
             this.posto = viaggio["citta"];
             this.nome = viaggio["nomePacchetto"];
             this.nazione = viaggio["paese"][1];
             this.descrizione = viaggio["descrizione"];
             this.partenza = viaggio["partenza"];
+            this.arrivo = viaggio["arrivo"];
             this.costo = viaggio["costo"];
             this.postiLiberi = viaggio["posti_liberi"];
-            this.periodo = [new Date(date[0]), new Date(date[1])];
+            //Ringrazio JS per parsificare la data per YYYY/MM/DD
+            this.periodo = [new Date(date[0][2], date[0][1], date[0][0]), new Date(date[1][2], date[1][1],date[1][0])];
           } else {
             this.nViaggio++;
           }
@@ -93,6 +95,7 @@ export class GridComponent {
   nazione = "";
   header = "Nuovo Pacchetto";
   nViaggio = 0;
+  labelBtn = "Aggiungi";
 
 
   ngOnInit() {
@@ -141,6 +144,18 @@ export class GridComponent {
     this.messaggio_visibile = false;
     this.modal_visible = true;
     this.header = 'Nuovo Pacchetto';
+    this.immagine = "";
+    this.posto = "";
+    this.nome = "";
+    this.nazione = "";
+    this.descrizione = "";
+    this.partenza = "";
+    this.arrivo = "";
+    this.costo = 0;
+    this.postiLiberi = 0;
+    //Ringrazio JS per parsificare la data per YYYY/MM/DD
+    this.periodo = [];
+    this.labelBtn = "Aggiungi";
   }
 
   async aggiungi() {
@@ -177,7 +192,7 @@ export class GridComponent {
       } else {
         this.messaggio = resp[0];
         this.messaggio_visibile = true;
-        this.tipo_messaggio = "danger";
+        this.tipo_messaggio = "error";
       }
     } else {
       await this.mandoDati('http://localhost:8080/modifica');
@@ -208,7 +223,7 @@ export class GridComponent {
       this.messaggio_visibile = true;
       this.messaggio = "Pacchetto aggiunto con successo";
     } else {
-      this.tipo_messaggio = "danger";
+      this.tipo_messaggio = "error";
       this.messaggio_visibile = true;
       this.messaggio = await resp.text();
     }
@@ -216,7 +231,7 @@ export class GridComponent {
 
   async chiedoSigla() {
     this.nazione = this.nazione.trim().toLowerCase();
-    this.nazione = this.nazione[0].toLowerCase() + this.nazione.substring(1, this.nazione.length);
+    this.nazione = this.nazione[0].toUpperCase() + this.nazione.substring(1, this.nazione.length);
 
     const richiesta_paese = await fetch('http://localhost:8080/paese?nome=' + this.nazione.trim());
     return [await richiesta_paese.text(), richiesta_paese.status.toString()];

@@ -104,7 +104,7 @@ export class GridComponent {
 
 
   ngOnInit() {
-    fetch("http://130.61.29.167:8080/listaviaggi")
+    fetch("http://localhost/listaviaggi")
       .then((response) => response.json()
         .then(data => {
           this.viaggi = data;
@@ -133,7 +133,7 @@ export class GridComponent {
         severity: 'danger',
         outlined: true,
       },
-      accept: () => {fetch(`http://130.61.29.167:8080/cancella`, {
+      accept: () => {fetch(`http://localhost/cancella`, {
           method: 'DELETE',
           body: JSON.stringify({nome: this.nome})
         }).then(() => {
@@ -176,7 +176,7 @@ export class GridComponent {
       try {
         const resp = await this.chiedoSigla();
         if (resp[1] === "200") {
-          await this.mandoDati('http://130.61.29.167:8080/nuovo', resp[0]);
+          await this.mandoDati('http://localhost/nuovo', resp[0]);
         } else {
           this.tipo_messaggio = "error";
           this.messaggio_visibile = true;
@@ -196,14 +196,14 @@ export class GridComponent {
     if (this.viaggi[this.nViaggio]["paese"][1] !== this.nazione) {
       let resp = await this.chiedoSigla();
       if (resp[1] === "200") {
-        await this.mandoDati('http://130.61.29.167:8080/modifica', resp[0]);
+        await this.mandoDati('http://localhost/modifica', resp[0]);
       } else {
         this.messaggio = resp[0];
         this.messaggio_visibile = true;
         this.tipo_messaggio = "error";
       }
     } else {
-      await this.mandoDati('http://130.61.29.167:8080/modifica');
+      await this.mandoDati('http://localhost/modifica');
     }
   }
 
@@ -244,7 +244,7 @@ export class GridComponent {
     this.nazione = this.nazione.trim().toLowerCase();
     this.nazione = this.nazione[0].toUpperCase() + this.nazione.substring(1, this.nazione.length);
 
-    const richiesta_paese = await fetch('http://130.61.29.167:8080/paese?nome=' + this.nazione.trim());
+    const richiesta_paese = await fetch('http://localhost/paese?nome=' + this.nazione.trim());
     return [await richiesta_paese.text(), richiesta_paese.status.toString()];
   }
 

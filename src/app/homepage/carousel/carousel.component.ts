@@ -19,7 +19,7 @@ export class CarouselComponent {
 
   ngOnInit()
   {
-    fetch("http://130.61.29.167:8080/listaviaggi")
+    fetch("http://localhost/listaviaggi")
       .then((response) => response.json()
         .then(data => {
           this.viaggi = data;

@@ -31,7 +31,7 @@ export class ListaComponent {
       }
     });
 
-    fetch("http://130.61.29.167:8080/ricerca", {
+    fetch("http://localhost/ricerca", {
       method: 'POST',
       body: JSON.stringify({partenza: this.partenza, arrivo: this.arrivo})
     }).then(res => {

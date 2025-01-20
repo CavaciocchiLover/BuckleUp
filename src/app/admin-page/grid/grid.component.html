@@ -9,9 +9,9 @@
           <span class="text-lg mx-1">{{viaggio["paese"][1]}}</span>
         </div>
       </div>
-      <p class="mt-1 font-light text-sm">{{viaggio["descrizione"]}}</p>
+      <p class="mt-1 font-normal text-sm">{{viaggio["descrizione"]}}</p>
       <div class="grid grid-cols-2 mt-2">
-        <p-button label="Maggiori dettagli" outlined severity="primary"/>
+        <p-button label="Maggiori dettagli" outlined severity="primary" (onClick)="redirect(viaggio.nomePacchetto)"/>
         <div class="flex flex-row-reverse">
           <p-button label="..." outlined severity="secondary" (onClick)="menu.toggle($event); nome = viaggio['nomePacchetto'];"/>
           <p-menu #menu [model]="items" [popup]="true" />
@@ -67,7 +67,8 @@
       <p-message [severity]="tipo_messaggio" closable [hidden]="!messaggio_visibile">{{messaggio}}</p-message>
       <div class="flex justify-end gap-2 mt-3">
         <p-button label="Annulla" outlined severity="secondary" (onClick)="modal_visible = false"/>
-        <p-button #btn [label]="labelBtn" outlined (onClick)="aggiungi()"/>
+        <p-button *ngIf="tipo_btn == 0" label="Aggiungi" outlined (click)="aggiungi()"/>
+        <p-button *ngIf="tipo_btn == 1" label="Modifica" outlined (click)="modifica()"/>
       </div>
   </p-dialog>
 <p-toast/>

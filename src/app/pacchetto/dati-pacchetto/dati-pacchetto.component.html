@@ -3,7 +3,8 @@
   <div class="mt-5 md:grid grid-cols-2 gap-10">
     <div class="flex justify-center relative">
       <img [src]="dati['immagine']" class="mt-2 max-w-4xl" width="80%"/>
-      <p-tag *ngIf="dati.posti_liberi <= 5" value="QUASI SOLD-OUT" severity="danger" class="absolute top-[0.8rem] left-[11%] z-10" styleClass="dark:!bg-surface-900" />
+      <p-tag *ngIf="dati.posti_liberi <= 5 && dati.posti_liberi > 0" value="QUASI SOLD-OUT" severity="danger" class="absolute top-[0.8rem] left-[11%] z-10" styleClass="dark:!bg-surface-900" />
+      <p-tag *ngIf="dati.posti_liberi == 0" value="SOLD-OUT" severity="danger" class="absolute top-[0.8rem] left-[11%] z-10" styleClass="dark:!bg-surface-900" />
     </div>
     <div class="grid grid-cols-2 gap-5 sm:mt-5">
       <div class="flex flex-row gap-1 text-lg place-self-center text-nowrap">
@@ -31,21 +32,24 @@
         <fa-icon [icon]="faPlaneArrival" style="color: #d62828"></fa-icon>
         <span>{{ 'Arrivo: ' + dati['arrivo'] }}</span>
       </div>
-      <div class="flex flex-row gap-1 text-lg place-self-center text-nowrap">
+      <div *ngIf="localStorage.getItem('ruolo') === 'admin'" class="flex flex-row gap-1 text-lg place-self-center text-nowrap">
         <fa-icon [icon]="faUser" style="color: #22577a;"></fa-icon>
         <span>{{ 'Posti liberi: ' + dati['posti_liberi'] }}</span>
       </div>
-      <div class="flex flex-row gap-1 text-lg place-self-center text-nowrap">
+      <div [ngClass]="(localStorage.getItem('ruolo') === 'admin') ? 'flex flex-row gap-1 text-lg place-self-center text-nowrap':'flex flex-row col-span-2 gap-1 text-lg place-self-center text-nowrap'">
         <fa-icon [icon]="faSackDollar" style="color: #80ed99;"></fa-icon>
         <span>{{ 'Costo: ' + dati['costo'] + '€'}}</span>
       </div>
-      <p-card class="flex items-center place-self-center col-span-2" header="Prenota subito!">
-        <div class="flex flex-row gap-1">
+      <p-card class="flex items-center place-self-center col-span-2" [header]="(dati['posti_liberi'] !== 0)? 'Prenota subito!': 'Sold Out'">
+        <div *ngIf="dati['posti_liberi'] <= 5 && dati['posti_liberi'] > 0" class="flex flex-row gap-1">
           <span>Sono rimasti</span>
           <span class="font-bold" style="color: #d62828">pochissimi</span>
           <span>posti, sbrigati!</span>
         </div>
-        <p-button class="mt-2 flex justify-center" label="Clicca qui" severity="success" outlined rounded (onClick)="apriModal();" />
+        <div *ngIf="dati['posti_liberi'] === 0">
+          <span>Sono terminati tutti i posti per questo pacchetto :(</span>
+        </div>
+        <p-button *ngIf="dati['posti_liberi'] !== 0" class="mt-2 flex justify-center" label="Clicca qui" severity="success" outlined rounded (onClick)="apriModal();" />
       </p-card>
     </div>
   </div>
@@ -53,13 +57,13 @@
     <span class="p-text-secondary block mb-8">Quante persone parteciperanno al viaggio?</span>
     <div class="flex items-center gap-4 mb-4">
       <label for="nPersone" class="font-semibold w-24">Numero di persone</label>
-      <p-input-number id="nPersone" [(ngModel)]="nPersone" class="flex-auto" [min]="0" [max]="10" (onInput)="calc()"/>
+      <p-input-number id="nPersone" [(ngModel)]="nPersone" class="flex-auto" [min]="0" (onInput)="calc()"/>
     </div>
     <div class="flex items-center gap-4 mb-4">
       <label for="costo" class="font-semibold w-24">Costo totale</label>
       <p-input-number [(ngModel)]="costo"  id="costo" class="flex-auto" mode="currency" readonly currency="EUR" locale="it-IT" />
     </div>
-    <p-message class="mb-8" [severity]="tipo_messaggio" closable [hidden]="!messaggio_visibile">{{messaggio}}</p-message>
+    <p-message class="mb-8" [severity]="tipo_messaggio" closable>{{messaggio}}</p-message>
     <div class="flex justify-end gap-2 mt-5">
       <p-button label="Annulla" severity="secondary" rounded outlined (onClick)="modal_visible = false;"/>
       <p-button label="Prenota" severity="primary" rounded outlined (onClick)="chiedoConferma($event)"/>

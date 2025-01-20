@@ -1,6 +1,6 @@
 import {Component, ViewChild} from '@angular/core';
 import {Card} from 'primeng/card';
-import {NgForOf, NgOptimizedImage} from '@angular/common';
+import {NgForOf, NgIf, NgOptimizedImage} from '@angular/common';
 import {Button} from 'primeng/button';
 import {ConfirmationService, MenuItem, MessageService} from 'primeng/api';
 import {ConfirmDialog} from 'primeng/confirmdialog';
@@ -8,7 +8,7 @@ import {Menu} from 'primeng/menu';
 import {Dialog} from 'primeng/dialog';
 import {InputText} from 'primeng/inputtext';
 import {Message} from 'primeng/message';
-import {FormControl, FormGroup, FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {DatePicker} from 'primeng/datepicker';
 import {Toast} from 'primeng/toast';
 import {Router} from '@angular/router';
@@ -30,7 +30,8 @@ import {AutoComplete, AutoCompleteCompleteEvent} from 'primeng/autocomplete';
     DatePicker,
     FormsModule,
     Toast,
-    AutoComplete
+    AutoComplete,
+    NgIf
   ],
   templateUrl: './grid.component.html',
   styleUrl: './grid.component.css',
@@ -38,16 +39,13 @@ import {AutoComplete, AutoCompleteCompleteEvent} from 'primeng/autocomplete';
 })
 export class GridComponent {
   constructor(private confirmationService: ConfirmationService, private messageService: MessageService, private router: Router) {}
-  @ViewChild('btn') btn!: Button;
 
   items: MenuItem[] = [
     {
       label: 'Modifica',
       icon: 'fa-solid fa-edit',
       command: () => {
-        this.labelBtn = 'Modifica';
-        this.btn.onClick.unsubscribe();
-        this.btn.onClick.subscribe(this.modifica);
+        this.tipo_btn = 1;
         this.modal_visible = true;
         this.header = "Modifica pacchetto";
         this.nViaggio = 0;
@@ -85,7 +83,6 @@ export class GridComponent {
   tipo_messaggio = "";
   messaggio = "";
   messaggio_visibile = false;
-  nuovoPacchetto: FormGroup | undefined;
   nome = "";
   posto = "";
   descrizione = "";
@@ -98,23 +95,22 @@ export class GridComponent {
   nazione = "";
   header = "Nuovo Pacchetto";
   nViaggio = 0;
-  labelBtn = "Aggiungi";
   liste_partenze: String[] = [];
   partenze_filtrate: String[] = [];
-
+  tipo_btn = 0;
 
   ngOnInit() {
-    fetch("http://localhost/listaviaggi")
+    fetch("http://localhost:8080/listaviaggi")
       .then((response) => response.json()
         .then(data => {
           this.viaggi = data;
-          this.liste_partenze = data.map((viaggio: any) => {return viaggio["partenza"]});
+          for (const viaggio of data) {
+            if(!this.liste_partenze.includes(viaggio["partenza"])) {
+              this.liste_partenze.push(viaggio["partenza"]);
+            }
+          }
         }))
       .catch((error) => console.error(error));
-
-    this.nuovoPacchetto = new FormGroup({
-      nome: new FormControl(''),
-    })
   }
 
   cancella(event: Event) {
@@ -133,11 +129,11 @@ export class GridComponent {
         severity: 'danger',
         outlined: true,
       },
-      accept: () => {fetch(`http://localhost/cancella`, {
+      accept: () => {fetch(`http://localhost:8080/cancella`, {
           method: 'DELETE',
           body: JSON.stringify({nome: this.nome})
         }).then(() => {
-          this.router.navigateByUrl(this.router.url, { skipLocationChange: true });
+          window.location.reload();
       }).catch((error) => {
         this.messageService.add({severity: 'danger', summary: 'Errore', detail: error});
 
@@ -163,7 +159,7 @@ export class GridComponent {
     this.postiLiberi = 0;
     //Ringrazio JS per parsificare la data per YYYY/MM/DD
     this.periodo = [];
-    this.labelBtn = "Aggiungi";
+    this.tipo_btn = 0;
   }
 
   async aggiungi() {
@@ -176,7 +172,7 @@ export class GridComponent {
       try {
         const resp = await this.chiedoSigla();
         if (resp[1] === "200") {
-          await this.mandoDati('http://localhost/nuovo', resp[0]);
+          await this.mandoDati('http://localhost:8080/nuovo',resp[0]);
         } else {
           this.tipo_messaggio = "error";
           this.messaggio_visibile = true;
@@ -196,43 +192,41 @@ export class GridComponent {
     if (this.viaggi[this.nViaggio]["paese"][1] !== this.nazione) {
       let resp = await this.chiedoSigla();
       if (resp[1] === "200") {
-        await this.mandoDati('http://localhost/modifica', resp[0]);
+        await this.mandoDati('http://localhost:8080/modifica',resp[0]);
       } else {
         this.messaggio = resp[0];
         this.messaggio_visibile = true;
         this.tipo_messaggio = "error";
       }
     } else {
-      await this.mandoDati('http://localhost/modifica');
+      await this.mandoDati('http://localhost:8080/modifica');
     }
   }
 
   async mandoDati(url: string, sigla_paese?: string) {
     let resp;
-
-    if (sigla_paese === null) {
-
-      // @ts-ignore
-      const sigla = this.viaggi.paese[0];
+    const inizio = new Intl.DateTimeFormat("it-IT").format(this.periodo[0]);
+    const fine = new Intl.DateTimeFormat("it-IT").format(this.periodo[1]);
+    console.log(sigla_paese);
+    if (sigla_paese === undefined) {
+      console.log(this.viaggi[this.nViaggio]["paese"][0]);
       resp = await fetch(url, {
         method: 'POST',
         body: JSON.stringify({citta: this.posto.trim(), costo: this.costo, posti_liberi: this.postiLiberi, partenza: this.partenza,
-          immagine: this.immagine.trim(), paese: [sigla, this.nazione], nomePacchetto: this.nome,
-          periodo: this.periodo[0] + "-" + this.periodo[1], descrizione: this.descrizione, arrivo: this.arrivo}),
+          immagine: this.immagine.trim(), paese: [this.viaggi[this.nViaggio]["paese"][0], this.nazione], nomePacchetto: this.nome,
+          periodo: inizio + "-" + fine, descrizione: this.descrizione, arrivo: this.arrivo}),
       });
     } else {
       resp = await fetch(url, {
         method: 'POST',
         body: JSON.stringify({citta: this.posto.trim(), costo: this.costo, posti_liberi: this.postiLiberi, partenza: this.partenza,
-          immagine: this.immagine.trim(), paese: [sigla_paese, this.nazione], nomePacchetto: this.nome,
-          periodo: this.periodo[0] + "-" + this.periodo[1], descrizione: this.descrizione, arrivo: this.arrivo}),
+          immagine: this.immagine.trim(), paese: [sigla_paese![1] + sigla_paese![2], this.nazione], nomePacchetto: this.nome,
+          periodo: inizio + "-" + fine, descrizione: this.descrizione, arrivo: this.arrivo}),
       });
     }
 
     if (resp.ok) {
-      this.tipo_messaggio = "success";
-      this.messaggio_visibile = true;
-      this.messaggio = "Pacchetto aggiunto con successo";
+      window.location.reload();
     } else {
       this.tipo_messaggio = "error";
       this.messaggio_visibile = true;
@@ -244,7 +238,7 @@ export class GridComponent {
     this.nazione = this.nazione.trim().toLowerCase();
     this.nazione = this.nazione[0].toUpperCase() + this.nazione.substring(1, this.nazione.length);
 
-    const richiesta_paese = await fetch('http://localhost/paese?nome=' + this.nazione.trim());
+    const richiesta_paese = await fetch('http://localhost:8080/paese?nome=' + this.nazione.trim());
     return [await richiesta_paese.text(), richiesta_paese.status.toString()];
   }
 
@@ -254,5 +248,8 @@ export class GridComponent {
       );
     }
 
+  redirect(nome: string) {
+    this.router.navigate(['/pacchetto'], {queryParams: {q: nome}});
+  }
 
 }

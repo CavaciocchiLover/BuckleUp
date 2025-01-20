@@ -264,7 +264,7 @@ async fn prenotazione(client: web::Data<Client>, body: web::Bytes) -> HttpRespon
     } else {
         let n_persone = persone.as_i64().unwrap() as i32;
         match collection.update_one(doc!{"nomePacchetto": nome.as_str().unwrap(),
-            "posti_liberi": {"$gt": n_persone}}, doc!{
+            "posti_liberi": {"$gte": n_persone}}, doc!{
             "$push": {
                 "prenotazioni": {
                     "email": email.as_str().unwrap(),
@@ -327,6 +327,7 @@ async fn main() -> std::io::Result<()> {
             .service(ricerca)
             .service(pacchetto)
             .service(prenotazione)
+            .service(modifica)
     })
         .bind(("0.0.0.0", 8080))?
         .run()

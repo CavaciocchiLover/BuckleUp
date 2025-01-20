@@ -59,16 +59,16 @@ async fn listaviaggi(client: web::Data<Client>) -> HttpResponse {
 
 #[post("/registrazione")]
 async fn registrazione(client: web::Data<Client>, body: web::Bytes) -> HttpResponse {
-    let json;
-    match serde_json::from_slice::<Registrazione>(&body) {
-        Ok(dati) => json = dati,
+    
+    let json = match serde_json::from_slice::<Registrazione>(&body) {
+        Ok(dati) => dati,
         Err(_) => return HttpResponse::BadRequest().body("Il json non è valido")
-    }
+    };
     let collection : Collection<Document> = client.database("BuckleUp").collection("utenti");
 
     match collection.find_one(doc!{"email": json.email.clone()}).await {
         Ok(cursor) => {
-            if cursor == None {
+            if cursor.is_none() {
                 let password = Base64::encode_string(&Sha256::digest(&json.password));
                 match collection.insert_one(doc!{"nome": json.nome, "cognome": json.cognome, "data_nascita": json.data, "email": json.email, "password": password, "ruolo": "utente"}).await
                 {
@@ -86,24 +86,24 @@ async fn registrazione(client: web::Data<Client>, body: web::Bytes) -> HttpRespo
 
 #[post("/login")]
 async fn login(client: web::Data<Client>, body: web::Bytes) -> HttpResponse {
-    let json;
-    match serde_json::from_slice::<Login>(&body) {
-        Ok(dati) => {json = dati;},
+
+   let json = match serde_json::from_slice::<Login>(&body) {
+        Ok(dati) => dati,
         Err(_) => return HttpResponse::BadRequest().body("Il json non valido")
-    }
+    };
 
     let collection : Collection<Document> = client.database("BuckleUp").collection("utenti");
 
     match collection.find_one(doc!{"email": json.email}).await {
         Ok(cursor) => {
-            if cursor == None {
+            if cursor.is_none() {
                 HttpResponse::NotFound().body("Password e/o email non sono validi")
             } else {
                 let password = Base64::encode_string(&Sha256::digest(&json.password));
                 let password_archiviata = cursor.as_ref().unwrap().get("password").unwrap().as_str().unwrap().to_string();
 
                 if password == password_archiviata {
-                    let json: Value = serde_json::from_str(&*("{\"ruolo\": \"".to_owned() + cursor.unwrap().get_str("ruolo").unwrap() + "\"}")).unwrap();
+                    let json: Value = serde_json::from_str(&("{\"ruolo\": \"".to_owned() + cursor.unwrap().get_str("ruolo").unwrap() + "\"}")).unwrap();
                     HttpResponse::Ok().json(json)
                 } else {
                     HttpResponse::BadRequest().body("Password e/o email non sono validi")
@@ -115,11 +115,11 @@ async fn login(client: web::Data<Client>, body: web::Bytes) -> HttpResponse {
 }
 #[post("/nuovo")]
 async fn nuovo(client: web::Data<Client>, body: web::Bytes) -> HttpResponse {
-    let json;
-    match serde_json::from_slice::<Viaggio>(&body) {
-        Ok(dati) => json = dati,
+    
+    let json = match serde_json::from_slice::<Viaggio>(&body) {
+        Ok(dati) => dati,
         Err(_) => return HttpResponse::BadRequest().body("Il json non è valido")
-    }
+    };
 
     let collection : Collection<Viaggio> = client.database("BuckleUp").collection("viaggi");
 
@@ -148,11 +148,11 @@ async fn paese(lista: web::Data<Value> ,query: web::Query<Value>) -> HttpRespons
 
 #[delete("/cancella")]
 async fn cancella(client: web::Data<Client>, body: web::Bytes) -> HttpResponse {
-    let json;
-    match serde_json::from_slice::<Value>(&body) {
-        Ok(dati) => json = dati,
+    
+    let json = match serde_json::from_slice::<Value>(&body) {
+        Ok(dati) => dati,
         Err(_) => return HttpResponse::BadRequest().body("Il json non è valido")
-    }
+    };
 
     let collection : Collection<Viaggio> = client.database("BuckleUp").collection("viaggi");
 
@@ -172,11 +172,11 @@ async fn cancella(client: web::Data<Client>, body: web::Bytes) -> HttpResponse {
 
 #[post("/modifica")]
 async fn modifica(client: web::Data<Client>, body: web::Bytes) -> HttpResponse {
-    let json;
-    match serde_json::from_slice::<Viaggio>(&body) {
-        Ok(dati) => json = dati,
+    
+    let json = match serde_json::from_slice::<Viaggio>(&body) {
+        Ok(dati) => dati,
         Err(_) => return HttpResponse::BadRequest().body("Il json non è valido")
-    }
+    };
 
     let collection : Collection<Viaggio> = client.database("BuckleUp").collection("viaggi");
 
@@ -190,11 +190,11 @@ async fn modifica(client: web::Data<Client>, body: web::Bytes) -> HttpResponse {
 
 #[post("/ricerca")]
 async fn ricerca(client: web::Data<Client>, body: web::Bytes) -> HttpResponse {
-    let json;
-    match serde_json::from_slice::<Value>(&body) {
-        Ok(dati) => json = dati,
+    
+    let json = match serde_json::from_slice::<Value>(&body) {
+        Ok(dati) => dati,
         Err(_) => return HttpResponse::BadRequest().body("Il json non è valido")
-    }
+    };
 
     let collection : Collection<Viaggio> = client.database("BuckleUp").collection("viaggi");
 
@@ -213,7 +213,7 @@ async fn ricerca(client: web::Data<Client>, body: web::Bytes) -> HttpResponse {
                         Err(e) => return HttpResponse::InternalServerError().body(e.to_string()),
                     }
                 }
-                if result.len() == 0 {
+                if result.is_empty() {
                     HttpResponse::NotFound().finish()
                 } else {
                     HttpResponse::Ok().json(result)
@@ -234,7 +234,7 @@ async fn pacchetto(client: web::Data<Client>, query: web::Query<Value>) -> HttpR
         let collection : Collection<Document> = client.database("BuckleUp").collection("viaggi");
         match collection.find_one(doc!{"nomePacchetto": nome.as_str().unwrap()}).await {
             Ok(doc) => {
-                if doc == None {
+                if doc.is_none() {
                     HttpResponse::NotFound().finish()
                 } else {
                     HttpResponse::Ok().json(doc)
@@ -247,11 +247,11 @@ async fn pacchetto(client: web::Data<Client>, query: web::Query<Value>) -> HttpR
 
 #[post("/prenotazione")]
 async fn prenotazione(client: web::Data<Client>, body: web::Bytes) -> HttpResponse {
-    let json;
-    match serde_json::from_slice::<Value>(&body) {
-        Ok(dati) => json = dati,
+    
+    let json = match serde_json::from_slice::<Value>(&body) {
+        Ok(dati) => dati,
         Err(_) => return HttpResponse::BadRequest().body("Il json non è valido")
-    }
+    };
 
     let collection : Collection<Viaggio> = client.database("BuckleUp").collection("viaggi");
 
@@ -288,7 +288,7 @@ async fn prenotazione(client: web::Data<Client>, body: web::Bytes) -> HttpRespon
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
 
-    let mut esiste = fs::exists("./paesi.json").unwrap_or_else(|_| false);
+    let mut esiste = fs::exists("./paesi.json").unwrap_or(false);
 
     while !esiste {
         match fs::exists("./paesi.json") {

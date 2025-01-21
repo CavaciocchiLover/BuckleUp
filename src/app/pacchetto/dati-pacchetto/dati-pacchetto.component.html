@@ -63,7 +63,7 @@
       <label for="costo" class="font-semibold w-24">Costo totale</label>
       <p-input-number [(ngModel)]="costo"  id="costo" class="flex-auto" mode="currency" readonly currency="EUR" locale="it-IT" />
     </div>
-    <p-message class="mb-8" [severity]="tipo_messaggio" closable>{{messaggio}}</p-message>
+    <p-message class="mb-8" [severity]="tipo_messaggio" closable [hidden]="!messaggio_visibile">{{messaggio}}</p-message>
     <div class="flex justify-end gap-2 mt-5">
       <p-button label="Annulla" severity="secondary" rounded outlined (onClick)="modal_visible = false;"/>
       <p-button label="Prenota" severity="primary" rounded outlined (onClick)="chiedoConferma($event)"/>

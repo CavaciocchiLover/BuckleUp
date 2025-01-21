@@ -99,13 +99,16 @@ export class NavbarComponent implements OnInit {
 
         localStorage.setItem("email", this.email);
         this.messaggio_visibile = true;
+        this.tipo_messaggio = "success";
         this.email = "";
         this.password = "";
         this.messaggio = "Ti sei loggatə con successo."
 
+
       } else {
+        this.messaggio_visibile = true;
         this.tipo_messaggio = "error";
-        this.messaggio = await response.text()
+        this.messaggio = await response.text();
       }
 
     } catch (e) {

@@ -125,12 +125,12 @@ export class DatiPacchettoComponent {
     let ruolo  = localStorage.getItem('ruolo');
     if (email !== null && ruolo !== null) {
       if (this.nPersone > 10) {
-        this.messaggio_visibile = true;
         this.messaggio = "Puoi prenotare per un massimo di 10 persone";
+        this.messaggio_visibile = true;
         this.tipo_messaggio = "error";
       } else if (this.nPersone > this.dati["posti_liberi"]) {
-        this.messaggio_visibile = true;
         this.messaggio = "Non ci sono così tanti posti liberi";
+        this.messaggio_visibile = true;
         this.tipo_messaggio = "error";
       } else {
         fetch("http://localhost:8080/prenotazione", {
@@ -140,7 +140,7 @@ export class DatiPacchettoComponent {
           if (resp.ok) {
             this.tipo_messaggio = "success";
             this.messaggio_visibile = true;
-            this.messaggio = "Registrazione avvenuta con successo";
+            this.messaggio = "Prenotazione avvenuta con successo";
             this.dati["posti_liberi"] = this.dati["posti_liberi"] - this.nPersone;
           } else {
             this.tipo_messaggio = "error";
